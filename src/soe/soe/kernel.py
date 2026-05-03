@@ -94,8 +94,7 @@ def _updated_state_with_candidate(
 ) -> SurvivingEventState:
     """Return a new authoritative representative-point state with one replacement."""
     if trusted:
-        # Skip full whole-state revalidation here: the chain already holds a valid
-        # state and only swaps one already-normalized replacement point.
+     
         return state._trusted_replace_representative_point(
             event_index=event_index,
             candidate_point=candidate_point,
@@ -155,7 +154,7 @@ def _single_event_mh_step_core(
     trusted_state_update_on_accept: bool = False,
 ) -> SingleEventMHStepResult:
     """Run one generic single-event MH step over validated counts."""
-    # -- runtime-audit: check for audit on the proposal backend --
+    
     audit = getattr(proposal_backend, '_runtime_audit', None)
 
     event_index = _as_event_index(
@@ -174,7 +173,7 @@ def _single_event_mh_step_core(
     else:
         proposal_ratio = proposal.proposal_ratio
 
-    # -- runtime-audit: voxel lookup --
+   
     if audit is not None:
         t0 = time.perf_counter()
     old_voxel, new_voxel = state.updated_voxel_index_for_event(
@@ -190,7 +189,7 @@ def _single_event_mh_step_core(
     old_count = int(current_counts[old_voxel])
     new_count = int(current_counts[new_voxel])
 
-    # -- runtime-audit: target ratio --
+  
     if audit is not None:
         t0 = time.perf_counter()
     target_ratio = single_event_target_ratio(
@@ -207,7 +206,6 @@ def _single_event_mh_step_core(
         audit.target_ratio_seconds += time.perf_counter() - t0
         audit.target_ratio_count += 1
 
-    # -- runtime-audit: acceptance decision --
     if audit is not None:
         t0 = time.perf_counter()
     if acceptance_probability >= 1.0:
@@ -241,11 +239,10 @@ def _single_event_mh_step_core(
             proposal_ratio=proposal_ratio,
         )
 
-    # -- runtime-audit: state commit (delta + state update on accept) --
+    
     if audit is not None:
         t0 = time.perf_counter()
-    # Do not rescan the full volume for negatives here; chain-entry validation
-    # plus the local decrement/increment update preserve nonnegativity.
+    
     updated_counts = _apply_single_event_delta_prevalidated_counts(
         current_counts,
         old_voxel=old_voxel,
@@ -352,7 +349,6 @@ def _single_event_mh_step_mutable_chain_state(
     current_counts = _as_hot_loop_counts(counts, grid=grid)
     state_view = chain_state.state_view()
 
-    # -- runtime-audit: check for audit on the proposal backend --
     audit = getattr(proposal_backend, '_runtime_audit', None)
 
     event_index = _as_event_index(
@@ -371,7 +367,7 @@ def _single_event_mh_step_mutable_chain_state(
     else:
         proposal_ratio = proposal.proposal_ratio
 
-    # -- runtime-audit: voxel lookup --
+
     if audit is not None:
         t0 = time.perf_counter()
     old_voxel, new_voxel = chain_state.updated_voxel_index_for_event(
@@ -387,7 +383,7 @@ def _single_event_mh_step_mutable_chain_state(
     old_count = int(current_counts[old_voxel])
     new_count = int(current_counts[new_voxel])
 
-    # -- runtime-audit: target ratio --
+
     if audit is not None:
         t0 = time.perf_counter()
     target_ratio = single_event_target_ratio(
@@ -404,7 +400,7 @@ def _single_event_mh_step_mutable_chain_state(
         audit.target_ratio_seconds += time.perf_counter() - t0
         audit.target_ratio_count += 1
 
-    # -- runtime-audit: acceptance decision --
+
     if audit is not None:
         t0 = time.perf_counter()
     if acceptance_probability >= 1.0:
@@ -441,7 +437,7 @@ def _single_event_mh_step_mutable_chain_state(
             proposal_ratio=proposal_ratio,
         )
 
-    # -- runtime-audit: state commit (delta + state update on accept) --
+    
     if audit is not None:
         t0 = time.perf_counter()
     updated_counts = _apply_single_event_delta_prevalidated_counts(
