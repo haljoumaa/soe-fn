@@ -33,7 +33,7 @@ Run a reconstruction:
 
 ```bash
 python3 orchestration/run_reconstruction.py \
-  --config orchestration/configs/toy_cases/gamma_point_source/reconstruction.toml
+  --config orchestration/configs/<.toml path>
 ```
 
 Example configs live under `orchestration/configs/`. They reference the public
