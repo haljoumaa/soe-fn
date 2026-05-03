@@ -117,7 +117,7 @@ class EventObj:
 
     Carries only `apex`, `axis`, `theta`, and optional `species` in `(x, y, z)`
     order. This excludes event id, event index, provenance, and run-level
-    filtering configuration such as `lambda_min`.
+    filtering configuration such as `lambda_min`. 0 < lambda_e < 1.
     """
 
     apex: np.ndarray
