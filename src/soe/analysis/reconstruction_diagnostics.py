@@ -3,8 +3,7 @@
 This module owns the separate reconstruction diagnostics JSON written next to
 the authoritative reconstruction arrays. The diagnostics payload is
 intentionally decoupled from `reconstruction_metadata.json`: it records
-instrumentation and run-behavior metrics only, not the artifact-interpretation
-contract.
+instrumentation and run-behavior metrics only.
 """
 
 from __future__ import annotations
