@@ -2,14 +2,12 @@
 
 SOE-FN is a Python implementation of Stochastic Origin Ensemble (SOE) reconstruction
 from fast-neutron cone-event data. It takes double-scatter neutron events, runs a
-Metropolis–Hastings chain on a bounded volume of interest, and produces a voxelised
+Metropolis–Hastings chain on a volume of interest, and produces a voxelised
 occupancy image.
 
 ## What this does
 
-In proton therapy, secondary fast neutrons carry spatial information about where the
-primary beam stopped. Each accepted double-scatter event defines a cone of possible
-emission origins. SOE reconstruction places one representative point per event on its
+SOE reconstruction places one representative point per event on its
 cone surface, voxelises the ensemble into an occupancy image, and evolves the
 configuration using Metropolis–Hastings proposals evaluated against the current
 occupancy field.
