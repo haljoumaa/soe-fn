@@ -1,9 +1,9 @@
-"""Exact cone-box surface geometry substrate for bounded VoiBounds.
+"""Exact cone-box surface geometry substrate for  VoiBounds.
 
 Provides the finite azimuth breakpoint decomposition and exact per-segment
 radial interval / area-profile evaluators for one event and one bounded box.
 This module does not alter the live proposal path.  It prepares the exact
-geometric objects needed by a future direct-sampler layer.
+geometric objects needed by the direct-sampler layer.
 
 Mathematical reference
 ---------------------
@@ -29,9 +29,7 @@ from dataclasses import dataclass
 from soe.adapters.voi_voxel import VoiBounds
 from soe.geometry.cone import ConeLocalGeometry
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
+
 
 _TWO_PI = 2.0 * math.pi
 _DEDUP_TOL = 1e-12
@@ -42,9 +40,6 @@ FACE_NAMES: tuple[str, ...] = ("x_lo", "x_hi", "y_lo", "y_hi", "z_lo", "z_hi")
 _FACE_IS_LOWER: tuple[bool, ...] = (True, False, True, False, True, False)
 
 
-# ---------------------------------------------------------------------------
-# Data types
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True, slots=True)
@@ -120,10 +115,6 @@ class ConeBoxSurfaceDecomposition:
     segments: tuple[AzimuthSegment, ...]
 
 
-# ---------------------------------------------------------------------------
-# Trigonometric solver
-# ---------------------------------------------------------------------------
-
 
 def _normalize_angle(xi: float) -> float:
     """Map angle to ``[0, 2*pi)``."""
@@ -181,9 +172,6 @@ def solve_linear_trig_zeros(A: float, B: float, C: float) -> list[float]:
     return solutions
 
 
-# ---------------------------------------------------------------------------
-# Coefficient builder
-# ---------------------------------------------------------------------------
 
 
 def build_cone_box_coefficients(
@@ -248,10 +236,6 @@ def build_cone_box_coefficients(
     )
 
 
-# ---------------------------------------------------------------------------
-# Breakpoint computation
-# ---------------------------------------------------------------------------
-
 
 def _collect_breakpoint_candidates(coeff: ConeBoxCoefficients) -> list[float]:
     """Collect all breakpoint candidates from denominator zeros and
@@ -315,9 +299,7 @@ def compute_breakpoints(coeff: ConeBoxCoefficients) -> tuple[float, ...]:
     return _dedup_sorted_angles(_collect_breakpoint_candidates(coeff))
 
 
-# ---------------------------------------------------------------------------
-# Fixed-azimuth evaluator
-# ---------------------------------------------------------------------------
+
 
 
 def evaluate_fixed_azimuth(
@@ -426,9 +408,6 @@ def evaluate_area_profile(coeff: ConeBoxCoefficients, xi: float) -> float:
     return evaluate_fixed_azimuth(coeff, xi).area_profile
 
 
-# ---------------------------------------------------------------------------
-# Segment decomposition
-# ---------------------------------------------------------------------------
 
 
 def _sign_of(x: float) -> int:
@@ -524,9 +503,6 @@ def build_decomposition(
     )
 
 
-# ---------------------------------------------------------------------------
-# Convenience constructor
-# ---------------------------------------------------------------------------
 
 
 def build_cone_box_decomposition(
@@ -538,9 +514,6 @@ def build_cone_box_decomposition(
     return build_decomposition(coeff)
 
 
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
 
 __all__ = [
     "FACE_NAMES",
