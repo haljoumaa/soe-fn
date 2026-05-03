@@ -1,10 +1,9 @@
-"""Generic reconstruction-stage execution surface.
+"""Reconstruction-stage execution surface.
 
 This module owns the reconstruction-only run helper used by the authoritative
-`orchestration/run_reconstruction.py` entrypoint. It starts from the frozen `ReconstructionInput(events, voi)` handoff, reuses
+`orchestration/run_reconstruction.py` entrypoint. It starts from the `ReconstructionInput(events, voi)` handoff, reuses
 the preprocessing and MH kernel components in `src/soe/`, and writes only the
-reconstruction artifact bundle. External evaluation data, beam-axis metadata,
-`r_ref`, and downstream reports do not enter here.
+reconstruction artifact bundle.
 """
 
 from __future__ import annotations
@@ -861,8 +860,7 @@ def run_reconstruction(config: ReconstructionRunConfig) -> ReconstructionRunResu
         artifact_write_runtime_seconds=None,
         total_runtime_seconds=time.perf_counter() - total_start,
     )
-    # The bundle writer needs diagnostics up front; rewrite the diagnostics sidecar
-    # after the main bundle write so the measured write phase is captured.
+  
     artifact_write_start = time.perf_counter()
     artifact_bundle = write_reconstruction_artifact_bundle(
         config.artifacts.artifacts_dir,
