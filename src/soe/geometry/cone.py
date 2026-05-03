@@ -1,9 +1,7 @@
 """Authoritative pointwise cone geometry for canonical `EventObj` values.
 
 The authoritative geometry path in this module operates on canonical
-`soe.contracts.core.EventObj` values only. Thin legacy compatibility shims
-are kept at the bottom so older imports do not create a competing geometry
-implementation elsewhere in the repo.
+`soe.contracts.core.EventObj` values only.
 """
 
 from __future__ import annotations
@@ -159,7 +157,6 @@ def cone_phi(r: object, event: EventObj) -> float:
 def is_on_cone_surface(r: object, event: EventObj, tol: float = _SURFACE_TOL) -> bool:
     """Return whether `r` lies on the canonical cone surface within `tol`.
 
-    The apex is excluded explicitly.
     """
     tol = _as_nonnegative_tol(tol, field_name="tol")
     return abs(cone_phi(r, event)) <= tol
@@ -168,8 +165,7 @@ def is_on_cone_surface(r: object, event: EventObj, tol: float = _SURFACE_TOL) ->
 def is_one_sided_feasible(r: object, event: EventObj) -> bool:
     """Return the canonical one-sided half-space predicate `dot(r-a, u) >= 0`.
 
-    This is the half-space check only; apex exclusion is handled separately by
-    `cone_phi`, `is_on_cone_surface`, and `is_admissible_point`.
+    This is the half-space check only
     """
     event = _as_event(event)
     _, d, _ = _point_from_event_apex(r, event)
