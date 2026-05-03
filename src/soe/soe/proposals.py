@@ -1,12 +1,5 @@
 """Reconstruction proposal interface and proposal-ratio contract.
 
-Repository intent:
-The repository has a landed exact backend for the current certified bounded
-`VoiBounds` half-open box subset, with broader support still intentionally
-unsupported. This module does not implement that geometry-local
-proposal law itself. It defines only the narrow contract that the live exact
-backend, or any toy discrete backend, must satisfy so the generic MH shell can
-evaluate the proposal contribution to the acceptance probability.
 """
 
 from __future__ import annotations
