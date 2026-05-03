@@ -1,8 +1,4 @@
 """Read-only NGImager HDF5 loader utilities for `/meta` and `/cones`.
-
-Raw `/cones/axis_xyz` orientation is a fixed upstream data-contract guarantee:
-values already encode `second interaction -> first interaction`. The adapter
-does not infer or repair axis orientation in this module.
 """
 
 from __future__ import annotations
@@ -29,7 +25,7 @@ _RAW_AXIS_CONVENTION = "second interaction -> first interaction"
 def _passes_authoritative_baseline_validity(
     event: EventObj, lambda_canonical: float
 ) -> bool:
-    """Apply the frozen authoritative validity rule: strict nondegeneracy `0 < lambda_e < 1` on the canonical event."""
+    """Apply the authoritative validity rule: strict nondegeneracy `0 < lambda_e < 1` on the canonical event."""
     if not (0.0 < lambda_canonical < 1.0):
         return False
     # `cos(pi/2)` is not represented as an exact zero in binary floating point,
@@ -273,11 +269,7 @@ def _canonicalize_raw_event(
     if not (0.0 < theta_raw < math.pi):
         raise Hdf5SchemaError(f"row {record.cone_row_index}: theta must be in (0, pi)")
 
-    # `/cones/axis_xyz` orientation is guaranteed upstream as the fixed
-    # formulation convention "second interaction -> first interaction". This is
-    # a data-contract assumption at the HDF5 boundary, not an inferred property,
-    # so the adapter applies no reorientation machinery here. The raw direction
-    # passes through unchanged apart from the explicit rigid registration d->Qd.
+    
     apex_registered = (registration.Q @ apex_raw) + registration.t
     axis_registered = registration.Q @ axis_raw
     axis_registered_norm = float(np.linalg.norm(axis_registered))
@@ -385,9 +377,6 @@ def load_image_context_asset(
     path: str | Path, *, dataset_path: str = "images/summed/all"
 ) -> dict[str, object] | None:
     """Load one optional bundled 2D image context asset plus lightweight metadata.
-
-    This helper is read-only and example-facing. It does not participate in the
-    authoritative reconstruction path.
     """
     with h5py.File(str(path), "r") as handle:
         dataset = handle.get(dataset_path)
@@ -433,25 +422,6 @@ def load_canonical_events(
     registration: RegistrationTransform,
     filter_config: EventFilterConfig,
 ) -> list[EventObj]:
-    """Load canonical events from `/cones/*` only.
-
-    This path does not consult `/meta` and does not infer any reconstruction
-    VOI. `/meta` plane geometry remains imaging-plane metadata only.
-
-    Raw axis values are interpreted using the fixed formulation convention
-    ``second interaction -> first interaction`` because that orientation is
-    guaranteed by the upstream data contract. The adapter therefore performs no
-    reorientation step here; raw axes pass through unchanged except for the
-    explicit rigid registration ``d -> Qd`` before one-nappe canonicalization.
-
-    The frozen authoritative validity rule here is strict nondegeneracy
-    ``0 < lambda_e < 1`` on the canonical event. Run-level ``lambda_min``
-    values do not redefine that authoritative path.
-
-    If `/cones/species` is numeric and `/cones/species_labels` exists, the
-    adapter preserves the exact decoded label string. Otherwise numeric species
-    values are preserved deterministically as ``raw:<value>``.
-    """
     raw_records = _load_raw_event_records(path)
 
     surviving_events: list[EventObj] = []
