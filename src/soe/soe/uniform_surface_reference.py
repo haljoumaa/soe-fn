@@ -1,19 +1,4 @@
-"""Exactness-first reference backend for uniform surface-area proposals on `X_k`.
-
-The reference proposal is the law that is uniform with respect to admissible
-surface measure on the selected event's admissible set `X_k`. This module implements only cases whose exactness can be justified
-directly from the repo's already-authoritative contracts.
-
-Current scope:
-The landed repository now justifies one narrow exact backend: the bounded-box
-`VoiBounds` case when the selected event already has a pointwise-admissible
-representative point in the strict-open VOI interior.
-That current point is used only as a positive-area support certificate. The
-proposal law itself depends only on the selected event and the box geometry.
-Non-VoiBounds inputs, boundary-only support certificates, and any broader `Q_k^U`
-claim still fail explicitly rather than silently approximating the
-proposal law with coordinate-uniform sampling, repair/clipping, or unverified
-support broadening.
+"""Exactness-first reference backend for uniform surface-area proposals.
 """
 
 from __future__ import annotations
@@ -351,14 +336,7 @@ def _sample_area_weighted_azimuth_and_interval(
     audit: Any | None = None,
     _proposal_support: _ExactBoundedBoxProposalSupport | None = None,
 ) -> tuple[float, Interval, float]:
-    """Sample `xi` exactly with density proportional to `A(xi)` on the box subset.
-
-    The proposal uses rejection sampling from the uniform azimuth law on
-    `[0, 2*pi)`, with envelope `R_max^2`, where `R_max` is the maximum distance
-    from the event apex to any box corner. Since
-    `A(xi) = ell_plus(xi)^2 - ell_minus(xi)^2 <= ell_plus(xi)^2 <= R_max^2`,
-    the accepted azimuth law is exactly proportional to `A(xi)`.
-    """
+   
     proposal_support = _proposal_support
     if proposal_support is None:
         if audit is not None:
@@ -390,7 +368,6 @@ def _sample_area_weighted_azimuth_and_interval(
         rejection_iterations += 1
         xi = 2.0 * math.pi * float(rng.random())
 
-        # -- runtime-audit: time cone_generator_direction inside interval call --
         interval, ell2_width = _visible_interval_and_area_profile_for_azimuth(
             event,
             allowed_region,
@@ -460,20 +437,7 @@ def _sample_exact_bounded_box_point(
     audit: Any | None = None,
     _proposal_support: _ExactBoundedBoxProposalSupport | None = None,
 ) -> np.ndarray:
-    """Sample exactly from the uniform admissible-surface law on one box case.
-
-    Under `Psi_e(ell, xi) = apex + ell * w_e(xi)`, the cone-surface Jacobian is
-    proportional to `ell`. For fixed `xi`, the admissible ray/box intersection
-    is the exact open interval returned by `open_box_ray_interval(...)`.
-    Therefore the exact surface-area law is obtained by:
-
-    1. sampling `xi` with density proportional to `ell_plus(xi)^2 - ell_minus(xi)^2`,
-       done exactly here by rejection sampling against the uniform azimuth law
-       with the global envelope `R_max^2`, where `R_max` bounds the distance
-       from the event apex to the bounded box;
-    2. sampling `ell` conditionally from density proportional to `ell` on the
-       selected interval, i.e. `ell^2 ~ Uniform(ell_minus^2, ell_plus^2)`.
-    """
+   
     xi, interval, _ = _sample_area_weighted_azimuth_and_interval(
         event=event,
         allowed_region=allowed_region,
@@ -483,7 +447,6 @@ def _sample_exact_bounded_box_point(
     )
     ell_minus, ell_plus = interval
 
-    # -- runtime-audit: radius sampling --
     if audit is not None:
         t0 = time.perf_counter()
     ell = _sample_radius_from_radial_endpoints(
@@ -495,7 +458,6 @@ def _sample_exact_bounded_box_point(
         audit.radius_sampling_seconds += time.perf_counter() - t0
         audit.radius_sampling_count += 1
 
-    # -- runtime-audit: surface point construction --
     if audit is not None:
         t0 = time.perf_counter()
     if _proposal_support is None:
@@ -514,7 +476,6 @@ def _sample_exact_bounded_box_point(
         audit.surface_point_seconds += time.perf_counter() - t0
         audit.surface_point_count += 1
 
-    # -- runtime-audit: admissibility verification --
     if audit is not None:
         t0 = time.perf_counter()
     admissible = is_admissible_point(point, event, allowed_region)
@@ -532,23 +493,14 @@ def _sample_exact_bounded_box_point(
 
 @dataclass(slots=True)
 class UniformSurfaceReferenceProposalBackend:
-    """Reference proposal backend for the baseline uniform surface-area law.
-
-    The current repository justifies one narrow exact subset only: bounded
-    `VoiBounds` together with a current representative point that already
-    certifies positive-area support from the strict-open box interior.
-    Within that subset this backend samples from the exact uniform
-    surface-measure law on the selected event's admissible set `X_k` and
-    returns symmetric proposal metadata. All broader cases still fail
-    explicitly.
-    """
+    
 
     certifies_symmetric_proposal: ClassVar[bool] = True
 
     allowed_region: VoiBounds
     event_index_selector: EventIndexSelector
     rng: np.random.Generator = field(default_factory=np.random.default_rng, repr=False)
-    # runtime-audit: optional timing accumulator, None by default
+    
     _runtime_audit: Any | None = field(default=None, repr=False)
     # Backend selection for the exact bounded-box proposal path.
     # True (default): use the exact inverse-CDF direct-sampler backend.
@@ -581,7 +533,6 @@ class UniformSurfaceReferenceProposalBackend:
             "_allowed_region_cache_key",
             _allowed_region_cache_key(self.allowed_region),
         )
-        # runtime-audit: record provenance once at construction
         audit = self._runtime_audit
         if audit is not None:
             audit.proposal_backend_module = __name__
@@ -717,7 +668,6 @@ class UniformSurfaceReferenceProposalBackend:
         selected_index = _as_event_index(event_index, n_events=len(validated_state.events))
         event = _selected_event(validated_state, event_index=selected_index)
 
-        # -- runtime-audit: support certificate validation --
         if audit is not None:
             t0 = time.perf_counter()
         proposal_support = self._get_or_build_event_proposal_support(event)
