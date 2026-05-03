@@ -20,7 +20,7 @@ def _as_point_xyz(value: object) -> np.ndarray:
 
 
 def _as_private_grid_shape(value: object) -> tuple[int, int, int] | None:
-    """Validate optional config-derived grid metadata without widening the contract."""
+    """Validate optional config-derived grid metadata"""
     if value is None:
         return None
     grid_shape = tuple(value)
@@ -70,7 +70,7 @@ class VoiBounds:
 
     @classmethod
     def from_config(cls, config: VOIConfig) -> "VoiBounds":
-        """Bridge the frozen `VOIConfig(bounds, grid_shape)` contract."""
+        """Bridge the `VOIConfig(bounds, grid_shape)` contract."""
         if not isinstance(config, VOIConfig):
             raise TypeError("config must be a VOIConfig")
         bounds = np.asarray(config.bounds, dtype=float)
