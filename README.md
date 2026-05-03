@@ -1,50 +1,59 @@
 # SOE-FN
 
-SOE-FN is a reconstruction-core implementation for stochastic origin ensemble
-(SOE) reconstruction on bounded volume-of-interest (VOI) event data.
+SOE-FN is a Python implementation of Stochastic Origin Ensemble (SOE) reconstruction
+from fast-neutron cone-event data. It takes double-scatter neutron events, runs a
+Metropolis–Hastings chain on a bounded volume of interest, and produces a voxelised
+occupancy image.
 
-A reconstruction starts from an explicit TOML configuration, reads canonical
-NGImager events through the HDF5 ingestion boundary, combines them with an
-externally supplied VOI/grid contract, filters event geometry into a
-`ReconstructionInput`, initializes SOE state inside the bounded VOI, runs the
-Metropolis-Hastings reconstruction chain, and writes the reconstruction bundle.
+## What this does
 
-## Scope
+In proton therapy, secondary fast neutrons carry spatial information about where the
+primary beam stopped. Each accepted double-scatter event defines a cone of possible
+emission origins. SOE reconstruction places one representative point per event on its
+cone surface, voxelises the ensemble into an occupancy image, and evolves the
+configuration using Metropolis–Hastings proposals evaluated against the current
+occupancy field.
 
-The repository covers the reconstruction chain up to persisted SOE outputs:
+This repository implements that reconstruction chain: reading cone-event data from
+HDF5, filtering events against a rectangular VOI, initialising the ensemble state,
+running the MH sampler, and writing the result — retained-mean occupancy, terminal
+state, metadata, and event provenance.
 
-- core contracts for `VOIConfig`, `EventObj`, `ReconstructionInput`,
-  registration, and event filtering;
-- read-only NGImager HDF5 event ingestion;
-- VOI and voxel primitives;
-- cone-event geometry, ray/box geometry, and sampled event filtering;
-- SOE state initialization, proposal generation, target evaluation,
-  Metropolis-Hastings updates, run protocol, occupancy estimation,
-  retained-state estimators, and chain-health diagnostics;
-- reconstruction orchestration from TOML configuration files;
-- persisted reconstruction outputs, including `retained_mean`,
-  `terminal_state`, run `metadata`, admitted-event provenance, and sidecar
-  files.
+Everything is driven by a single TOML config file.
 
-## Running a reconstruction
-
-Run a reconstruction with:
+## Getting started
 
 ```bash
-python3 orchestration/run_reconstruction.py --config <path/to/reconstruction.toml>
-````
-
-Example configurations are stored under:
-
-```text
-orchestration/configs/
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+pip install -e .
+pip install -r requirements-dev.txt
 ```
 
-The example configurations reference input data under:
+Run a reconstruction:
 
-```text
-data/toy_cases/
-data/water_phantom/
+```bash
+python3 orchestration/run_reconstruction.py \
+  --config orchestration/configs/toy_cases/gamma_point_source/reconstruction.toml
 ```
 
-Outputs are written to ignored local artifact directories by default (but you can change that if you wish).
+Example configs live under `orchestration/configs/`. They reference the public
+example data in `data/toy_cases/` and `data/water_phantom/`. Outputs go to local
+directories that are git-ignored by default.
+
+## Public data
+
+The `data/` directory contains small example inputs used by the configs and tests.
+See `data/README.md` for the layout.
+
+## Development
+
+```bash
+python3 -m pytest -q        # tests
+python3 -m ruff check .     # linting
+```
+
+## License
+
+MIT. See `LICENSE`.
