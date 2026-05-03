@@ -1,5 +1,5 @@
 """Core VOI and event-geometry data contracts.
-
+0 < lambda_e < 1
 These types fix the ingestion and reconstruction boundary data.
 """
 
