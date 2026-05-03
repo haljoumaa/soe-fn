@@ -1,7 +1,6 @@
 """Core VOI and event-geometry data contracts.
 
-These types freeze the ingestion and reconstruction boundary data. They must
-not grow parsing, geometry, sampling, or state-update logic.
+These types fix the ingestion and reconstruction boundary data.
 """
 
 from __future__ import annotations
@@ -100,11 +99,7 @@ def _as_species_filter(value: str | Iterable[str] | None) -> tuple[str, ...] | N
 
 @dataclass(frozen=True, slots=True)
 class VOIConfig:
-    """Externally supplied VOI contract.
-
-    Bounds and grid shape are provided by ingestion/configuration and are not
-    inferred from cone data. Array/index order is always `(x, y, z)`.
-    """
+    
 
     bounds: np.ndarray
     grid_shape: tuple[int, int, int]
@@ -145,7 +140,7 @@ class EventObj:
 
 @dataclass(frozen=True, slots=True)
 class ReconstructionInput:
-    """Minimal reconstruction input: canonical events plus an external VOI."""
+    """Minimal reconstruction input: canonical events plus a VOI."""
 
     events: tuple[EventObj, ...]
     voi: VOIConfig
@@ -162,12 +157,6 @@ class ReconstructionInput:
 @dataclass(frozen=True, slots=True)
 class RegistrationTransform:
     """Ingestion-time rigid transform `(Q, t)`.
-
-    This belongs at the adapter ingestion boundary before geometry is
-    interpreted. The input-assembly contract intentionally assumes same-handed
-    upstream frames, so `Q` is restricted to `SO(3)` and does not support
-    reflections from the broader `O(3)` class. It is not part of later
-    geometry predicates or reconstruction state logic.
     """
 
     Q: np.ndarray
@@ -183,14 +172,6 @@ class RegistrationTransform:
 @dataclass(frozen=True, slots=True)
 class EventFilterConfig:
     """Auxiliary event filtering inputs.
-
-    The frozen authoritative validity rule is strict nondegeneracy
-    `0 < lambda_e < 1` on each canonical event. That rule is
-    not defined by this config. On the authoritative reconstruction path,
-    only the optional species allow-list is consumed from here.
-
-    `lambda_min` is retained only as an auxiliary run-level threshold for
-    non-core callers and does not belong on `EventObj`.
     """
 
     lambda_min: float = 0.001
