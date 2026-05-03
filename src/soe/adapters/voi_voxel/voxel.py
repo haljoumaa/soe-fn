@@ -88,9 +88,7 @@ def materialize_allowed_boxes(allowed_region: object) -> tuple[StrictOpenBox, ..
 class VoxelGrid:
     """Regular VOI voxel grid in fixed `(x, y, z)` order.
 
-    `grid_shape = (nx, ny, nz)` tiles the VOI exactly. Spacings and all voxel
-    edges/centres are derived from the VOI bounds rather than accepted as
-    independent user inputs.
+    `grid_shape = (nx, ny, nz)` tiles the VOI exactly.
     """
 
     nx: int
