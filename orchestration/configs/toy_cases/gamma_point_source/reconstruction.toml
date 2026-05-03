@@ -1,0 +1,33 @@
+run_id = "gamma_point_source"
+
+[input]
+# Read-only NGImager HDF5 input for the gamma point-source style case.
+hdf5_path = "../../../../data/toy_cases/gamma_point_source/imaging_data_records_usrdef_out.h5"
+
+[reconstruction]
+# Bounded VOI around the point-source style support at (0, 0, 0) cm.
+bounds_cm = [
+  [-2.0,  2.0],
+  [-2.0,  2.0],
+  [-2.0,  2.0],
+]
+
+# 0.25 cm voxels:
+# 4 / 0.25 = 16 per axis
+grid_shape = [16, 16, 16]
+
+artifacts_dir = "../../../../local_artifacts/reconstruction/gamma_point_source"
+retained_mean_filename = "retained_mean.npy"
+terminal_state_filename = "terminal_state.npy"
+
+[survival]
+mode = "fixed"
+gate_mode = "full_box"
+K = 16
+
+[run]
+num_steps = 4000
+burn_in_steps = 1000
+thin_every = 10
+capture_terminal_state = true
+capture_step_results = false

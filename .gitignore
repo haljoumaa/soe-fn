@@ -1,0 +1,32 @@
+# OS / Python / test / build artifacts
+.DS_Store
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.venv/
+venv/
+.conda/
+.mamba/
+build/
+dist/
+*.egg-info/
+
+# Run outputs / generated reconstruction artifacts
+results/
+runs/
+local_artifacts/
+retained_mean.npy
+terminal_state.npy
+reconstruction_metadata.json
+reconstruction_diagnostics.json
+chain_health.json
+admitted_event_ids.json
+
+# Local binary scratch files
+*.pickle
+*.pickle.xz
+*.pkl
+*.pkl.xz

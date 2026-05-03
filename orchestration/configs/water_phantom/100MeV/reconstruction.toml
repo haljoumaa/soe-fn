@@ -1,0 +1,36 @@
+run_id = "water_phantom_100mev"
+
+[input]
+# Read-only NGImager HDF5 input for the 100 MeV water-phantom style case.
+hdf5_path = "../../../../data/water_phantom/dataset_neutrons_100MeV/usrdef_out.h5"
+
+[reconstruction]
+# Bounded VOI for the water-phantom style reconstruction volume.
+bounds_cm = [
+  [-15.0,  15.0],
+  [-20.0,  20.0],
+  [-15.0,  15.0],
+]
+
+grid_shape = [10, 15, 150]
+
+artifacts_dir = "../../../../local_artifacts/reconstruction/water_phantom_100mev"
+retained_mean_filename = "retained_mean.npy"
+terminal_state_filename = "terminal_state.npy"
+
+[survival]
+mode = "fixed"
+gate_mode = "full_box"
+K = 512
+
+[seeds]
+event_index_selector = 20260426
+proposal_backend = 20260427
+acceptance_uniform = 20260428
+
+[run]
+num_steps = 4000
+burn_in_steps = 100
+thin_every = 10
+capture_terminal_state = true
+capture_step_results = false

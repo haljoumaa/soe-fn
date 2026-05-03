@@ -1,0 +1,46 @@
+run_id = "neutron_line_source"
+
+[input]
+# Read-only NGImager HDF5 input for the neutron line-source style case.
+hdf5_path = "../../../../data/toy_cases/neutron_line_source/usrdef_out.h5"
+
+[reconstruction]
+# Bounded VOI around the line-source style support.
+#
+# Source geometry:
+# - center: (0, 3, 4) cm
+# - axis: y
+# - y span: [-1, 7] cm
+# - radius: 0.4 cm
+#
+# Padded reconstruction box:
+# x in [-2, 2]
+# y in [-2, 8]
+# z in [2, 6]
+bounds_cm = [
+  [-2.0,  2.0],
+  [-2.0,  8.0],
+  [ 2.0,  6.0],
+]
+
+# 0.25 cm voxels:
+# x: 4 / 0.25 = 16
+# y: 10 / 0.25 = 40
+# z: 4 / 0.25 = 16
+grid_shape = [16, 40, 16]
+
+artifacts_dir = "../../../../local_artifacts/reconstruction/neutron_line_source"
+retained_mean_filename = "retained_mean.npy"
+terminal_state_filename = "terminal_state.npy"
+
+[survival]
+mode = "fixed"
+gate_mode = "full_box"
+K = 16
+
+[run]
+num_steps = 4000
+burn_in_steps = 1000
+thin_every = 10
+capture_terminal_state = true
+capture_step_results = false

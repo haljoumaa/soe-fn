@@ -1,0 +1,18 @@
+[build-system]
+requires = [
+    "setuptools>=61",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "novo-soe"
+version = "0.0.0"
+description = "SOE reconstruction core"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "h5py",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
