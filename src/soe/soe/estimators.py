@@ -46,8 +46,7 @@ class RetainedStateAccumulator:
 
     This class does not decide which states are retained. It only consumes
     already-retained canonical occupancy images, or representative-point
-    states that are deterministically converted to the same images through the
-    frozen Phase 3.1 voxelisation path. Direct occupancy ingestion is the
+    states that are deterministically converted to the same images through the voxelisation path. Direct occupancy ingestion is the
     standard low-memory path; `add_state(...)` remains compatibility-only.
     """
 
