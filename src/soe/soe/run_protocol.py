@@ -206,8 +206,7 @@ def run_chain(
         raise TypeError("chain_health_collector must be a ChainHealthCollector or None")
 
     grid = _as_grid(grid)
-    # Fast-path ownership: the chain owns and mutates `current_counts`; retained/reporting
-    # consumers and debug snapshots must get detached copies, not aliased writable views.
+   
     current_counts = _as_chain_owned_counts(initial_counts, grid=grid)
     _require_matching_initial_counts(initial_state, current_counts, grid=grid)
     current_chain_state = _ChainMutableSurvivingEventState.from_state(
