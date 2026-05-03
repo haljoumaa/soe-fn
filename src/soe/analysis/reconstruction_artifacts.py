@@ -829,10 +829,6 @@ def write_reconstruction_metadata_sidecar(
     terminal_step_index: object | None = None,
 ) -> ReconstructionMetadata:
     """Write the reconstruction-only metadata sidecar next to saved arrays.
-
-    `total_steps` and the lightweight auxiliary provenance fields stay nullable
-    because future artifact writers may not surface them at the write boundary.
-    This helper validates what is present and does not invent missing authority.
     """
     retained_entry = ReconstructionArtifactEntry(
         filename=retained_mean_filename,
