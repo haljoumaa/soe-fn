@@ -77,9 +77,7 @@ from soe.geometry.ray_box import Interval
 if TYPE_CHECKING:
     from soe.soe.uniform_surface_reference import _ExactBoundedBoxProposalSupport
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
+
 
 _TWO_PI = 2.0 * math.pi
 # Bisection settings for numerical inversion of the exact segment partial CDF.
@@ -88,9 +86,6 @@ _BISECT_MAX_ITER = 64
 _DIRECT_CERT_RETRY_MAX = 32
 _DIRECT_NUMERICAL_PHI_SOFT_TOL = 1e-10
 
-# ---------------------------------------------------------------------------
-# Scaffold sentinel (preserved from earlier prompt)
-# ---------------------------------------------------------------------------
 
 
 class DirectSamplerNotReady(RuntimeError):
@@ -265,9 +260,6 @@ def _safeguarded_secant_fraction(
     return candidate
 
 
-# ---------------------------------------------------------------------------
-# Open-interval RNG helper
-# ---------------------------------------------------------------------------
 
 
 def _sample_open01(rng: np.random.Generator) -> float:
@@ -278,9 +270,6 @@ def _sample_open01(rng: np.random.Generator) -> float:
             return draw
 
 
-# ---------------------------------------------------------------------------
-# Segment selection by exact cumulative mass
-# ---------------------------------------------------------------------------
 
 
 def _select_segment_by_mass(
@@ -305,9 +294,6 @@ def _select_segment_by_mass(
     return j
 
 
-# ---------------------------------------------------------------------------
-# Direct draw: exact masses/CDFs + numerical azimuth inversion (steps 3.1-3.3)
-# ---------------------------------------------------------------------------
 
 
 def direct_sample_area_weighted_azimuth_and_interval(
@@ -365,19 +351,19 @@ def direct_sample_area_weighted_azimuth_and_interval(
         # Build primitives (exact segment masses, cumulative masses, total mass)
         primitives = build_direct_sampler_primitives(decomposition, cone_geometry.s)
 
-    # Step 3.1: Fail closed if total admissible surface mass is non-positive
+    #  Fail closed if total admissible surface mass is non-positive
     if primitives.total_mass <= 0.0:
         raise DirectSamplerError(
             "direct-sampler: zero total admissible surface mass "
             "(event cone has no visible surface in the bounded box)"
         )
 
-    # Step 3.2: Draw u_mass from (0, T_k) and select visible segment by mass
+    #Draw u_mass from (0, T_k) and select visible segment by mass
     u_mass = _sample_open01(rng) * primitives.total_mass
     j = _select_segment_by_mass(primitives, u_mass)
     u_seg = u_mass - primitives.cumulative_masses[j]
 
-    # Step 3.3: Numerically invert the exact segment partial CDF to get xi
+    # Numerically invert the exact segment partial CDF to get xi
     xi = invert_segment_partial_cdf(primitives, j, u_seg)
 
     # Evaluate exact radial interval at the drawn azimuth
@@ -400,10 +386,6 @@ def direct_sample_area_weighted_azimuth_and_interval(
 
     return xi, (ell_minus, ell_plus), ell2_width
 
-
-# ---------------------------------------------------------------------------
-# Full direct draw (steps 3.1-3.7)
-# ---------------------------------------------------------------------------
 
 
 def direct_sample_exact_bounded_box_point(
@@ -438,7 +420,7 @@ def direct_sample_exact_bounded_box_point(
     ``proposal_ratio = 1``.
     """
     for attempt in range(_DIRECT_CERT_RETRY_MAX):
-        # Steps 3.1-3.3: exact mass selection + numerical azimuth inversion
+        #  exact mass selection + numerical azimuth inversion
         if audit is not None:
             t0 = time.perf_counter()
         xi, interval, ell2_width = direct_sample_area_weighted_azimuth_and_interval(
@@ -455,7 +437,7 @@ def direct_sample_exact_bounded_box_point(
             audit.direct_sampler_azimuth_count += 1
         ell_minus, ell_plus = interval
 
-        # Step 3.4: Exact conditional radial draw
+        # Exact conditional radial draw
         # f(ell | xi) = 2*ell / (ell_plus^2 - ell_minus^2) on [ell_minus, ell_plus]
         # CDF: F(ell) = (ell^2 - ell_minus^2) / (ell_plus^2 - ell_minus^2)
         # Inverse: ell = sqrt(ell_minus^2 + u_rad * (ell_plus^2 - ell_minus^2))
@@ -468,7 +450,7 @@ def direct_sample_exact_bounded_box_point(
             audit.direct_sampler_radial_seconds += time.perf_counter() - t0
             audit.direct_sampler_radial_count += 1
 
-        # Step 3.5: Authoritative world-space mapping via Psi_k(ell, xi)
+        # Authoritative world-space mapping via Psi_k(ell, xi)
         if audit is not None:
             t0 = time.perf_counter()
         if _proposal_support is not None:
@@ -481,7 +463,7 @@ def direct_sample_exact_bounded_box_point(
             audit.direct_sampler_point_seconds += time.perf_counter() - t0
             audit.direct_sampler_point_count += 1
 
-        # Step 3.6: Exact support certification
+        #  Exact support certification
         if audit is not None:
             t0 = time.perf_counter()
 
@@ -523,9 +505,7 @@ def direct_sample_exact_bounded_box_point(
     )
 
 
-# ---------------------------------------------------------------------------
-# Primitives data type
-# ---------------------------------------------------------------------------
+
 
 
 @dataclass(frozen=True, slots=True)
@@ -559,10 +539,6 @@ class DirectSamplerPrimitives:
     cumulative_masses: tuple[float, ...]
     total_mass: float
 
-
-# ---------------------------------------------------------------------------
-# Builders
-# ---------------------------------------------------------------------------
 
 
 def build_direct_sampler_primitives(
@@ -620,9 +596,6 @@ def build_direct_sampler_primitives_from_geometry(
     return build_direct_sampler_primitives(decomposition, cone_geometry.s)
 
 
-# ---------------------------------------------------------------------------
-# Segment density evaluator
-# ---------------------------------------------------------------------------
 
 
 def evaluate_segment_density(
@@ -643,9 +616,6 @@ def evaluate_segment_density(
     return (primitives.s / 2.0) * iv.area_profile
 
 
-# ---------------------------------------------------------------------------
-# Per-segment partial CDF evaluator
-# ---------------------------------------------------------------------------
 
 
 def evaluate_segment_partial_cdf(
@@ -669,9 +639,6 @@ def evaluate_segment_partial_cdf(
     return _evaluate_segment_partial_cdf_from_context(context, xi)
 
 
-# ---------------------------------------------------------------------------
-# Per-segment inverse CDF (numerical realization)
-# ---------------------------------------------------------------------------
 
 
 def invert_segment_partial_cdf(
@@ -776,9 +743,7 @@ def invert_segment_partial_cdf(
     return _segment_fraction_to_xi(xi_a, arc_len, frac)
 
 
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
+
 
 __all__ = [
     "DirectSamplerError",
