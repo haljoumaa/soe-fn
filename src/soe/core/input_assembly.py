@@ -6,9 +6,6 @@ This module is the single narrow assembly path for reconstruction inputs:
 - External VOI boundary -> `VOIConfig`
 - Assembly -> `ReconstructionInput(events, voi)`
 
-No raw HDF5 objects, `/meta` geometry, state, representative points, usability
-decisions, diagnostics payloads, or provenance are part of the returned handoff
-object.
 """
 
 from __future__ import annotations
@@ -41,10 +38,6 @@ def assemble_reconstruction_input(
     voi: VOIConfig,
 ) -> ReconstructionInput:
     """Assemble the authoritative `ReconstructionInput` object.
-
-    This function consumes already-canonical `EventObj` values together with an
-    externally supplied `VOIConfig` and returns only
-    `ReconstructionInput(events, voi)`.
     """
     if not isinstance(voi, VOIConfig):
         raise TypeError("voi must be a VOIConfig")
@@ -59,14 +52,6 @@ def assemble_reconstruction_input_from_hdf5(
     voi: VOIConfig,
 ) -> ReconstructionInput:
     """Compose canonical HDF5 event loading with the authoritative handoff.
-
-    The HDF5 adapter path used here yields canonical `EventObj[]` from `/cones`
-    only; reconstruction VOI still comes exclusively from the external
-    `VOIConfig`. Registration must remain explicit on this authoritative path:
-    callers pass a `RegistrationTransform` even when the intended transform is
-    the identity. The authoritative event-validity rule remains fixed inside
-    adapter canonical ingestion as `0 < lambda_e < 1`; `filter_config` does
-    not redefine that rule on this handoff.
     """
     if not isinstance(registration, RegistrationTransform):
         raise TypeError(
