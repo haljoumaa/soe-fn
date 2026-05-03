@@ -1,4 +1,4 @@
-"""Exact non-live azimuth-law machinery for bounded VoiBounds.
+"""Exact non-live azimuth-law machinery for VoiBounds.
 
 Builds on the landed cone-box surface geometry substrate in
 ``cone_box_surface.py`` to provide:
@@ -9,8 +9,7 @@ Builds on the landed cone-box surface geometry substrate in
 - cumulative segment masses,
 - continuous per-segment partial-CDF evaluators.
 
-This module does NOT implement sampling or inversion, and does NOT alter
-the live proposal path in ``uniform_surface_reference.py``.
+This module does NOT implement sampling or inversion.
 
 Mathematical reference
 ---------------------
@@ -37,20 +36,13 @@ from soe.geometry.cone_box_surface import (
     evaluate_fixed_azimuth,
 )
 
-# ---------------------------------------------------------------------------
-# Constants
-# ---------------------------------------------------------------------------
+
 
 _TWO_PI = 2.0 * math.pi
 _DELTA_TOL = 1e-24
 _ATANH_BOUNDARY_TOL = 1e-12
 _COS_HALF_T_TOL = 1e-14
 _U_ASYMP_THRESHOLD = 1e13
-
-
-# ---------------------------------------------------------------------------
-# Data types
-# ---------------------------------------------------------------------------
 
 
 @dataclass(frozen=True, slots=True)
@@ -107,9 +99,7 @@ class AzimuthLaw:
     total_mass: float
 
 
-# ---------------------------------------------------------------------------
-# Trig parameter helpers
-# ---------------------------------------------------------------------------
+
 
 
 def _trig_params(
@@ -124,9 +114,6 @@ def _trig_params(
     return R, phi, A0, B0, Delta
 
 
-# ---------------------------------------------------------------------------
-# Exact primitive of 1/g(xi)^2
-# ---------------------------------------------------------------------------
 
 
 def _generalized_atanh(x: float) -> float:
@@ -250,9 +237,6 @@ def evaluate_primitive(xi: float, a: float, b: float, c: float) -> float:
     return _eval_J_at_t(xi - phi, a, R, A0, B0, Delta)
 
 
-# ---------------------------------------------------------------------------
-# Half-tangent singularity crossing count
-# ---------------------------------------------------------------------------
 
 
 def _count_half_tangent_crossings(t_a: float, t_b: float) -> int:
@@ -347,9 +331,6 @@ def _integrate_inv_g_sq_from_context(
     return result
 
 
-# ---------------------------------------------------------------------------
-# Definite integral of 1/g(xi)^2 over an arc
-# ---------------------------------------------------------------------------
 
 
 def integrate_inv_g_sq(
@@ -378,10 +359,6 @@ def integrate_inv_g_sq(
     context = _build_inv_g_sq_primitive_context(xi_a, a, b, c)
     return _integrate_inv_g_sq_from_context(xi_b, context, wraps=wraps)
 
-
-# ---------------------------------------------------------------------------
-# Segment regime extraction
-# ---------------------------------------------------------------------------
 
 
 def _extract_regime(
@@ -449,9 +426,6 @@ def _extract_regime(
     )
 
 
-# ---------------------------------------------------------------------------
-# Segment mass
-# ---------------------------------------------------------------------------
 
 
 def _segment_wraps(regime: SegmentRegime) -> bool:
@@ -495,9 +469,6 @@ def compute_segment_mass(regime: SegmentRegime) -> float:
     return mass
 
 
-# ---------------------------------------------------------------------------
-# Per-segment partial CDF
-# ---------------------------------------------------------------------------
 
 
 def partial_cdf(law: AzimuthLaw, j: int, xi: float) -> float:
@@ -542,9 +513,6 @@ def partial_cdf(law: AzimuthLaw, j: int, xi: float) -> float:
     return cdf
 
 
-# ---------------------------------------------------------------------------
-# Segment area profile (convenience)
-# ---------------------------------------------------------------------------
 
 
 def segment_area_profile(law: AzimuthLaw, j: int, xi: float) -> float:
@@ -555,9 +523,6 @@ def segment_area_profile(law: AzimuthLaw, j: int, xi: float) -> float:
     return evaluate_fixed_azimuth(law.decomposition.coefficients, xi).area_profile
 
 
-# ---------------------------------------------------------------------------
-# Builder
-# ---------------------------------------------------------------------------
 
 
 def build_azimuth_law(
@@ -589,9 +554,6 @@ def build_azimuth_law(
     )
 
 
-# ---------------------------------------------------------------------------
-# Convenience: build from geometry + bounds
-# ---------------------------------------------------------------------------
 
 
 def build_azimuth_law_from_geometry(
@@ -605,9 +567,6 @@ def build_azimuth_law_from_geometry(
     return build_azimuth_law(decomposition)
 
 
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
 
 __all__ = [
     "AzimuthLaw",
